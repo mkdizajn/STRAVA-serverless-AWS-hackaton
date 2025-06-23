@@ -1,11 +1,11 @@
-Strava AI Insights - Hackathon Setup Guide
-------------------------------------------
+Strava AI Insights - My Hackathon Setup
+---------------------------------------
 
-This guide outlines the steps to deploy the serverless application on AWS.
+This guide outlines the steps I used to deploy the serverless application on AWS.
 
 ### Architecture Overview
 
-As you designed, the flow is:
+Outlined is pinpoints and simplified flow:
 
 1.  **SPA (S3/CloudFront)**: User clicks "Connect with Strava".
     
@@ -15,7 +15,7 @@ As you designed, the flow is:
     
 4.  **Strava Webhook**: A new activity in Strava sends an event to a separate API Gateway endpoint.
     
-5.  **API Gateway -> Lambda (`process_strava_webhook`)**: EventBridge triggers the second Lambda with the activity details.
+5.  **API Gateway -> Lambda (`process_strava_webhook`)**: passes event to the second Lambda with the activity details.
     
 6.  **Lambda Logic**:
     
@@ -127,21 +127,23 @@ Created a single IAM Role that both Lambda functions use.
             ]
         }
         
-    
+    - Bedrock - Claude 3.0 Sonnet
+    - Two DynamoDB tables
+    - Two Lambda function for InvokeFunction actions
+
 
 #### 4\. Lambda Dependencies Layer
 
-Your Python code requires the `requests` library, which is not included in the standard Lambda runtime. I created a Lambda Layer in form of zip file and added it as layer - to provide this dependency.
+Python code requires the `requests` library, which is not included in the standard Lambda runtime. So I created a Lambda Layer in form of zip file and added it as custom layer - to provide this requirement.
 
 1.  **In CloudShell** I executed next commands to add custom layer
     
-        # created new env
+        # started with new env
         python -m venv venv
-        # activated and switch to it
+        # activated, switch to it
         source venv/bin/activate
-        # created new directory
+        # new dir and added required lib
         mkdir python
-        # added required lib
         pip install -t python requests
         # zipped it into archive
         zip -r9 requests.zip python
@@ -149,7 +151,7 @@ Your Python code requires the `requests` library, which is not included in the s
         aws lambda publish-layer-version --layer-name required_requests_lib --compatible-runtime python3.12 --compatible-architectures x86_64 --zip-file fileb://requests.zip --no-cli-pager
         
     
-2.  In the AWS Lambda console, go to **Layers** and in UI added newly created `required_requests_lib` layer.
+2.  And In the AWS Lambda console, in **Layers** tab UI, I added newly created `required_requests_lib` layer.
     
 
 #### 5\. Lambda Functions
@@ -190,24 +192,31 @@ Created two new **REST API** Endpoints.
 
 1.  **OAuth Callback Endpoint**:
     
-    *   Create a resource: `/strava/callback`.
+    *   New resource: `/strava/callback`.
         
-    *   Create a `GET` method on this resource.
+    *   Made and set `GET` method on this resource.
         
     *   Integration type: **Lambda Function**.
         
-    *   Select your `handle_strava_oauth` Lambda function.
+    *   Used `handle_strava_oauth` Lambda function.
         
 2.  **Webhook Ingestion Endpoint**:
     
-    *   Create a resource: `/strava/webhook`.
+    *   New resource: `/strava/webhook`.
         
-    *   Create a `POST` method on this resource.
+    *   Made and set `POST` method on this resource.
         
     *   Integration type: **Lambda Function**.
         
-    *   Select your `process_strava_webhook` Lambda function.
+    *   Used `process_strava_webhook` Lambda function.
         
+
+### Testing Live demo
+
+To be able to test live demo you need to:
+- have Strava Application on your phone/watch
+- head to testing [url](https://strava-ai-app.s3.eu-central-1.amazonaws.com/index.html) and authorize the app for access
+- log new acctivity and automatically AI suggestion will be filled in your description field :)
 
 ### Testing connection with custom payload
 
@@ -226,5 +235,11 @@ Created two new **REST API** Endpoints.
             }
         }
 
-For all STRAVA developer related stuff I contacted API dev page from here: https://developers.strava.com/docs/webhooks/#:~:text=an%20activity's%20privacy.-,Subscriptions,com/api/v3/push_subscriptions
+I used this bash oneliner:
 
+    curl -X POST https://125crb3zb6.execute-api.eu-central-1.amazonaws.com/prod/process_strava_webhook -d '{"aspect_type": "create","event_time": 1750619134,"object_id": XZY-your-url-slug-id,"object_type": "activity","owner_id": XZY-your-athlete-id,"subscription_id": 289178,"updates": {"title": "Messy"}}'
+
+I used official STRAVA API developer page for all details > here: https://developers.strava.com/docs/webhooks/#:~:text=an%20activity's%20privacy.-,Subscriptions,com/api/v3/push_subscriptions
+
+
+#### ___Thanks, Kres___
