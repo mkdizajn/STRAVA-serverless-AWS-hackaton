@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strava AI Workout Insights</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Simple background gradient */
+        .bg-pattern {
+            background-color: #111827; /* bg-gray-900 */
+            background-image: radial-gradient(circle at 1px 1px, rgba(255,255,255,0.1) 1px, transparent 0);
+            background-size: 2rem 2rem;
+        }
+    </style>
+</head>
+<body class="bg-pattern text-white">
+
+    <div class="container mx-auto px-4">
+        <div class="min-h-screen flex flex-col items-center justify-center">
+            
+            <div class="text-center w-full max-w-2xl">
+                <!-- Main Content Box -->
+                <div class="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl shadow-2xl p-8 md:p-12">
+                    
+                    <!-- Icon -->
+                    <div class="mb-6">
+                        <svg class="w-16 h-16 mx-auto text-orange-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 01-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 013.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 013.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 01-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.898 20.572L16.5 21.75l-.398-1.178a3.375 3.375 0 00-2.455-2.456L12.5 17.25l1.178-.398a3.375 3.375 0 002.455-2.456L16.5 13.5l.398 1.178a3.375 3.375 0 002.456 2.456L20.25 18l-1.178.398a3.375 3.375 0 00-2.456 2.456z" />
+                        </svg>
+                    </div>
+
+                    <h1 class="text-4xl md:text-5xl font-black tracking-tighter mb-4">
+                        Unlock AI-Powered Workout Insights
+                    </h1>
+
+                    <p class="text-lg text-gray-400 max-w-xl mx-auto mb-8">
+                        Connect your Strava account to automatically analyze new workouts with Amazon Bedrock. Get personalized feedback and motivation posted directly to your activity feed.
+                    </p>
+
+                    <!-- Call to Action Button -->
+                    <a id="connect-strava-btn" href="#" class="inline-block bg-orange-600 hover:bg-orange-700 text-white font-bold text-lg py-4 px-10 rounded-lg shadow-lg transition-transform transform hover:scale-105">
+                        Connect with Strava
+                    </a>
+                </div>
+                
+                <footer class="mt-8 text-gray-500">
+                    <p>Powered by AWS Serverless & Amazon Bedrock</p>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('connect-strava-btn').addEventListener('click', function(event) {
+            event.preventDefault();
+
+            // --- Configuration ---
+            // IMPORTANT: Replace these with your actual Strava application details.
+            const stravaClientId = '63680'; 
+            
+            // This is the URL of your API Gateway endpoint that triggers the OAuth handling Lambda.
+            // Example: https://xxxxxxxxxx.execute-api.us-east-1.amazonaws.com/prod/strava/callback
+            const redirectUri = 'https://earj4ucl80.execute-api.eu-central-1.amazonaws.com/pros/handle_strava_oauth';
+
+            // --- Strava OAuth URL Construction ---
+            const stravaAuthUrl = 'https://www.strava.com/oauth/authorize';
+            
+            // We need permission to read activities and write/update them.
+            const scope = 'activity:read_all,activity:write';
+            const responseType = 'code';
+            
+            const authUrl = new URL(stravaAuthUrl);
+            authUrl.searchParams.append('client_id', stravaClientId);
+            authUrl.searchParams.append('redirect_uri', redirectUri);
+            authUrl.searchParams.append('response_type', responseType);
+            authUrl.searchParams.append('approval_prompt', 'auto');
+            authUrl.searchParams.append('scope', scope);
+            
+            console.log('Redirecting to:', authUrl.toString());
+
+            // Redirect the user to the Strava authorization page.
+            window.location.href = authUrl.toString();
+        });
+    </script>
+
+</body>
+</html>
