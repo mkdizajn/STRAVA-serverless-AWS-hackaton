@@ -211,6 +211,14 @@ Created two new **REST API** Endpoints.
     *   Used `process_strava_webhook` Lambda function.
         
 
+## Lambdas
+
+Handle strava oauth
+File: handle_strava_oauth.py > [link](https://github.com/mkdizajn/STRAVA-serverless-AWS-hackaton/blob/main/handle_strava_oauth.py)
+
+Process strava webhook + bedrock call
+File: process_strava_webhook.py > [link](https://github.com/mkdizajn/STRAVA-serverless-AWS-hackaton/blob/main/process_strava_webhook.py#L97-L103)
+
 ### Testing Live demo
 
 To be able to test live demo you need to:
